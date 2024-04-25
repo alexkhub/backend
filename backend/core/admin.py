@@ -15,7 +15,7 @@ class OrderAdmin(ImportExportModelAdmin):
     list_display = ('id', 'user', 'delivery_date', 'status', 'expiration_date', 'order_size')
     search_fields = ('user__username', 'user__phone')
     list_filter = ('status', 'order_size', 'delivery_date')
-    list_editable = ('expiration_date',)
+    list_editable = ('expiration_date', 'status')
 
 
 class EmployeeAdmin(admin.ModelAdmin):

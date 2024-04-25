@@ -16,3 +16,8 @@ def deadline_message(telegram_id, order_id ) :
         "order_id": order_id,
         "address": "Где-то там"
 }, headers={'Content-Type': "application/json"})
+
+
+def get_date():
+    date = str(datetime.today())
+    return date[:10]

@@ -5,6 +5,9 @@ from sortedm2m.fields import SortedManyToManyField
 from autoslug import AutoSlugField
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ValidationError
+from kombu.exceptions import OperationalError
+import requests
+
 ORDER_STATUS = (
     ('выдан', 'выдан'),
     ('не выдан', 'не выдан')
@@ -51,10 +54,38 @@ class Order(models.Model):
     def __str__(self):
         return f"{self.pk}"
 
+    def save(self, *args, **kwargs):
+
+        super(Order, self, ).save(*args, **kwargs)
+
+        try:
+            if self.status == 'выдан':
+                employee = Employee.objects.filter(at_the_pick_up_point=True).first()
+                url = 'http://192.168.77.83:8000/api-tg/productGet/'
+                requests.post(url=url, json={
+                    "telegram_id": self.user.telegram_id,
+                    "order_id": self.pk,
+                    "employee_id": employee.id,
+                    "address": "Где-то там"
+                }, headers={'Content-Type': "application/json"})
+            else:
+                url = 'http://192.168.77.83:8000/api-tg/productArrived/'
+                requests.post(url=url, json={
+                    "telegram_id": self.user.telegram_id,
+                    "order_id": self.id,
+                    "expiration_date": str(self.expiration_date),
+                    "address": "Где-то там"
+                }, headers={'Content-Type': "application/json"})
+        except:
+            pass
+
+        super(Order, self, ).save(*args, **kwargs)
+
 
 class Employee(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE, verbose_name='Пользователь')
     rating = models.DecimalField(verbose_name='Рейтинг', max_digits=5, decimal_places=2, default=5)
+    at_the_pick_up_point = models.BooleanField(verbose_name='На пункте выдачи', default=False)
 
     class Meta:
         verbose_name = 'Сотрудники'
@@ -95,7 +126,6 @@ class Cell(models.Model):
         super(Cell, self).save(*args, **kwargs)
 
 
-
 class Rack(models.Model):
     cells = SortedManyToManyField('Cell', verbose_name='Ячейки')
     employee = models.ForeignKey('Employee', verbose_name='Сотрудник', on_delete=models.SET_NULL, blank=True, null=True)
@@ -127,7 +157,7 @@ class Comment(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE, verbose_name="Пользователь")
     employee = models.ForeignKey('Employee', on_delete=models.CASCADE, blank=True, null=True)
     text = models.TextField(verbose_name="Комментарий", blank=True, null=True)
-    rating = models.PositiveIntegerField(verbose_name='Оценка', default=5)
+    rating = models.DecimalField(verbose_name='Оценка', max_digits=5, decimal_places=2, default=5)
     date = models.DateField(verbose_name='Время', auto_now_add=True, blank=True)
 
     class Meta:

@@ -40,7 +40,7 @@ class CellSerializer(serializers.ModelSerializer):
 class TBUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('slug', 'telegram_id', 'phone',)
+        fields = ('id', 'telegram_id', 'phone',)
 
 
 class TBOrderSerializer(serializers.ModelSerializer):
@@ -72,6 +72,24 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Comment
         exclude = ('date',)
+
+    def create(self, validated_data):
+
+        return Comment.objects.create( **validated_data)
+
+class TBGETIDSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'telegram_id')
+
+
+class StatisticEmployeeSerializer(serializers.ModelSerializer):
+    user = serializers.SlugRelatedField(slug_field='username', read_only=True)
+
+    class Meta:
+        model  = Employee
+        fields = ('user', 'rating')
