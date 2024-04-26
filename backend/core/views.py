@@ -108,10 +108,12 @@ class StatisticsListView(ListAPIView):
         completed_orders = len(self.get_queryset().filter(status='выдан'))
         free_cell = len(Cell.objects.filter(free_place=1.0).prefetch_related('orders'))
         cell = len(Cell.objects.all().prefetch_related('orders'))
+        expiration_orders = len(self.get_queryset().filter(expiration_date=get_date()))
         return Response({'new_order': new_order,
                          'completed_orders': completed_orders,
                          'cell': cell,
-                         'free_cell': free_cell
+                         'free_cell': free_cell,
+                         'expiration_orders' : expiration_orders
                          }
                         )
 

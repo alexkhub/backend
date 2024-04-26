@@ -50,6 +50,7 @@ class Order(models.Model):
     class Meta:
         verbose_name = 'Заказ'
         verbose_name_plural = 'Заказы'
+        ordering = ['-delivery_date', 'status' ]
 
     def __str__(self):
         return f"{self.pk}"
@@ -66,7 +67,7 @@ class Order(models.Model):
                     "telegram_id": self.user.telegram_id,
                     "order_id": self.pk,
                     "employee_id": employee.id,
-                    "address": "Где-то там"
+                    "address": "ул. Васо Абаева, д.44"
                 }, headers={'Content-Type': "application/json"})
             else:
                 url = 'http://192.168.77.83:8000/api-tg/productArrived/'
@@ -74,7 +75,7 @@ class Order(models.Model):
                     "telegram_id": self.user.telegram_id,
                     "order_id": self.id,
                     "expiration_date": str(self.expiration_date),
-                    "address": "Где-то там"
+                    "address": "ул. Васо Абаева, д.44"
                 }, headers={'Content-Type': "application/json"})
         except:
             pass

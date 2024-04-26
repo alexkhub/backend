@@ -12,7 +12,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'order_deadline': {
             'task': 'core.tasks.order_deadline',
-            'schedule': crontab(minute='*/60', )
+            'schedule': crontab(minute='*/2', )
         },
     'employee_rating' : {
             'task': 'core.tasks.employee_rating',

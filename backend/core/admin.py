@@ -1,7 +1,13 @@
 from django.contrib import admin
 from .models import *
 from import_export.admin import ImportExportModelAdmin
+from .service import get_date
 
+@admin.action(description="Массовое изъятие")
+def mass_withdrawal_of_orders(modeladmin, request, queryset):
+
+    queryset = queryset.filter(expiration_date__lt=get_date())
+    queryset.delete()
 
 class UsersAdmin(admin.ModelAdmin):
     list_display = ('id', 'username', 'email', 'phone', 'is_staff', 'phone', 'telegram_id')
@@ -16,6 +22,7 @@ class OrderAdmin(ImportExportModelAdmin):
     search_fields = ('user__username', 'user__phone')
     list_filter = ('status', 'order_size', 'delivery_date')
     list_editable = ('expiration_date', 'status')
+    actions = [mass_withdrawal_of_orders]
 
 
 class EmployeeAdmin(admin.ModelAdmin):
